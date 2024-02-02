@@ -74,7 +74,7 @@ fig_time = px.bar(x=teams_sorted, y=times_sorted, labels={'x': 'Équipes', 'y': 
 
 app = dash.Dash(__name__, external_stylesheets=['https://codepen.io/chriddyp/pen/bWLwgP.css'])
 
-couleur_principale = '#2f2f2f'
+couleur_principale = 'black'
 couleur_secondaire = '#404040'
 couleur_texte = '#ffffff'
 
@@ -87,7 +87,7 @@ app.layout = html.Div([
     # Barre de navigation à gauche avec des onglets pour sélectionner les graphiques
     html.Div([
         dcc.Tabs(id="tabs", value='tab-1', children=[
-            dcc.Tab(label="Introductio", value='tab-start', style=Tab_Style),
+            dcc.Tab(label="Introduction", value='tab-start', style=Tab_Style),
             dcc.Tab(label="L'équipe la plus riche", value='tab-1', style=Tab_Style),
             dcc.Tab(label='Taux échecs et réussites', value='tab-2', style=Tab_Style),
             dcc.Tab(label="L'équipe la plus victorieuse", value='tab-3', style=Tab_Style),
@@ -133,6 +133,7 @@ def render_content(tab):
     elif tab == 'tab-start':
         return html.Div([
             html.H3("Introduction "),
+            html.Img(src='https://fs-prod-cdn.nintendo-europe.com/media/images/10_share_images/games_15/nintendo_switch_4/H2x1_NSwitch_FortBoyard_image1600w.jpg', style={'max-width': '25%', 'height': 'auto'}),
             html.P("Ce projet va analyser des données extraites du site Fort Boyard sur les équipes ayant participé pendant 2019 à 2023. ", style={'padding': '20px'}),
         ],style=Content_Style )
 
