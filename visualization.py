@@ -1,79 +1,11 @@
-import json
+
 import dash
-from dash import dcc, html, Input, Output, State
-import plotly.graph_objs as go
+from dash import dcc, html, Input, Output, dash_table, State
 import plotly.express as px
 
-with open('data.json', 'r') as file:
-    data = json.load(file)
+from values import data, fig_gains,fig_reussites_echecs,fig_avg_successes,fig_time,time_to_seconds
 
-# Graph Gain ---------------------------------------------------
-equipes = [team['Equipe'] for team in data]
-gains = [int(team['Gain'].replace(" ", "")) for team in data]
-
-# Triez les données par ordre croissant de gains
-equipes_gains_sorted, gains_sorted = zip(*sorted(zip(equipes, gains), key=lambda x: x[1]))
-
-# Créer l'histogramme avec Plotly en utilisant les données triées
-fig_gains = px.bar(x=equipes_gains_sorted, y=gains_sorted, labels={'x': 'Équipes', 'y': 'Gains'},
-                   title='Histogramme des Gains par Équipe')
-
-
-
-# Graph réussites/échecs ---------------------------------------------------
-reussites = []
-echecs = []
-for team in data:
-    toutes_reussites = sum([categorie.count("Reussite") for categorie in team['Reussites'].values()])
-    tous_echecs = sum([categorie.count("Echec") for categorie in team['Reussites'].values()])
-    reussites.append(toutes_reussites)
-    echecs.append(tous_echecs)
-
-# Créer le graphique des réussites/échecs avec Plotly
-fig_reussites_echecs = go.Figure(data=[
-    go.Bar(name='Réussites', x=equipes, y=reussites),
-    go.Bar(name='Échecs', x=equipes, y=echecs)
-])
-fig_reussites_echecs.update_layout(barmode='group', title='Réussites et Échecs par Équipe')
-
-
-
-# Graph Moy Réussite ---------------------------------------------------
-data_triage = data.copy()
-
-# Triez la nouvelle variable par ordre croissant de réussite moyenne
-data_triage.sort(key=lambda team: sum(len(reussites) for reussites in team['Reussites'].values()) / len(team['Reussites']))
-
-fig_avg_successes = px.bar(
-    x=[team['Equipe'] for team in data_triage],
-    y=[sum(len(reussites) for reussites in team['Reussites'].values()) / len(team['Reussites']) for team in data_triage],
-    labels={'x': 'Équipe', 'y': 'Nombre Moyen de Réussites'},
-    title='Nombre Moyen de Réussites par Équipe'
-)
-
-# Graph Temps ---------------------------------------------------
-
-def time_to_minutes(time_list):
-    return time_list[0] * 60 + time_list[1]
-
-# Extraction des noms des équipes et de leur temps respectif
-# teams = [team['Equipe'] for team in data]
-times = [time_to_minutes(team['Temps']) for team in data]
-
-# Tri des données par temps en ordre décroissant
-equipe_time_sorted, times_sorted = zip(*sorted(zip(equipes, times), key=lambda x: x[1]))
-
-# Création d'un graphique en barres avec Plotly
-fig_time = px.bar(x=equipe_time_sorted, y=times_sorted, labels={'x': 'Équipes', 'y': 'Temps Total (seconde)'},
-                  title="Temps Total (en seconde) par Équipe dans l'épreuve final")
-
-# Affectation équipes ------------------------------------------------
-
-membres = [member['Membres'] for member in data]
-
-
-
-# Application Dash ---------------------------------------------------
+# --------------------------------Application Dash ---------------------------------------------------
 
 app = dash.Dash(__name__, external_stylesheets=['https://codepen.io/chriddyp/pen/bWLwgP.css'],suppress_callback_exceptions=True)
 
@@ -89,12 +21,13 @@ Main_Style = {'height': '100%','backgroundColor':couleur_principale,'width': '90
 app.layout = html.Div([
     # Barre de navigation à gauche avec des onglets pour sélectionner les graphiques
     html.Div([
-        dcc.Tabs(id="tabs", value='tab-1', children=[
+        dcc.Tabs(id="tabs", value='tab-start', children=[
             dcc.Tab(label="Introduction", value='tab-start', style=Tab_Style),
             dcc.Tab(label="L'équipe la plus riche", value='tab-1', style=Tab_Style),
             dcc.Tab(label='Taux échecs et réussites', value='tab-2', style=Tab_Style),
             dcc.Tab(label="L'équipe la plus victorieuse", value='tab-3', style=Tab_Style),
             dcc.Tab(label="L'équipe ayant le plus de temps", value='tab-4', style=Tab_Style),
+            dcc.Tab(label="Recherche", value='tab-search', style=Tab_Style),
         ], vertical=True, style={'height': '100vh'}),
     ], style={'width': '10%', 'float': 'left', 'backgroundColor':couleur_principale}),
 
@@ -105,6 +38,7 @@ app.layout = html.Div([
 
 @app.callback(Output('tabs-content', 'children'),
               [Input('tabs', 'value')])
+
 def render_content(tab):
     if tab == 'tab-1':
         return html.Div([
@@ -117,10 +51,10 @@ def render_content(tab):
                     {'label': 'Top 10', 'value': 10},
                     {'label': 'Toutes les équipes', 'value': len(data)},
                 ],
-                value=10,
+                value=len(data),
                 style={'color': 'black'},),
             html.P("Le gain final d'une équipe dans Fort Boyard est déterminé lors de l'épreuve finale, où les participants recueillent des pièces d'or dans une cage. Cette visualisation met en évidence les équipes qui ont excellé dans cette épreuve, capturant ainsi les plus grandes richesses. Les données révèlent non seulement les montants accumulés mais aussi la performance exceptionnelle de certaines équipes sous pression.", style={'padding': '20px'})
-        ], style=Content_Style )
+        ], style=Content_Style)
     elif tab == 'tab-2':
         return html.Div([
             html.H3('Comparaison de réussites/échec de chaques équipes'),
@@ -134,7 +68,7 @@ def render_content(tab):
             # Contenu pour Graph 3
             dcc.Graph(id='graph-moy-réusite', figure=fig_avg_successes),
             html.P("L'analyse des performances globales révèle que l'équipe ARSEP se distingue par le nombre le plus élevé d'épreuves réussies. Avec des membres expérimentés tels que Vianney, Laura Boulleau, et Maeva Coucke, qui ont participé à plusieurs reprises au jeu, cette équipe illustre l'impact de l'expérience et de la cohésion d'équipe sur le succès.", style={'padding': '20px'}),
-        ],style=Content_Style )
+        ],style=Content_Style)
     elif tab == 'tab-4':
         return html.Div([
             html.H3("Quelle équipe a eu le plus de temps dans l'épreuve final?"),
@@ -150,13 +84,36 @@ def render_content(tab):
                 marks={i: str(i) for i in range(0, 226, 10)}
             ),
             html.P("L'épreuve finale de Fort Boyard est un défi contre la montre, où le temps alloué varie en fonction des performances antérieures de l'équipe. Cette section explore comment le temps accordé lors de cette épreuve finale influence le gain final et souligne l'importance de maximiser chaque seconde pour augmenter les chances de victoire.", style={'padding': '20px'}),
-        ],style=Content_Style )
+        ],style=Content_Style)
     elif tab == 'tab-start':
         return html.Div([
             html.H3("Introduction "),
             html.Img(src='https://fs-prod-cdn.nintendo-europe.com/media/images/10_share_images/games_15/nintendo_switch_4/H2x1_NSwitch_FortBoyard_image1600w.jpg', style={'max-width': '75%', 'height': 'auto'}),
             html.P("Ce projet propose une analyse détaillée des performances des équipes ayant participé à Fort Boyard entre 2019 et 2023. En exploitant des données issues directement du jeu, nous explorerons différents aspects des défis rencontrés par les participants, mettant en lumière les stratégies gagnantes, les taux de réussite et d'échec, ainsi que l'efficacité des équipes dans la gestion du temps lors de l'épreuve finale.", style={'padding': '20px'}),
         ],style=Content_Style )
+    elif tab == 'tab-search':
+        return html.Div([
+            html.H3("Recherche dans l'archive :"),
+            dcc.Dropdown(
+                id='search-dropdown',
+                placeholder='Recherche par équipe...',
+                search_value='',
+                options=[],
+                style={'color': 'black'},
+            ),
+            html.Div(id='search-output')
+        ],style=Content_Style )
+    else:
+        return html.Div('Sélectionnez une sous-catégorie')
+
+
+
+
+
+
+# -------------------------- Section 'Update' ----------------------------------
+
+# Update Graph Gain ----------------------------
 
 @app.callback(
     Output('graph-gains', 'figure'),
@@ -173,21 +130,32 @@ def update_gains_graph(selected_value):
                  title=f'Top {selected_value} des Gains par Équipe')
     return fig
 
+# Update Graph Time ---------------------------
+
 @app.callback(
     Output('graph-time', 'figure'),
     [Input('slider-time', 'value')]
 )
 def update_time_graph(selected_value):
-    # Filtrer et trier les données basées sur la valeur sélectionnée du slider
-    filtered_data = sorted([team for team in data if time_to_minutes(team['Temps']) <= selected_value],
-                           key=lambda x: time_to_minutes(x['Temps']))
-    equipes_filtered = [team['Equipe'] for team in filtered_data]
-    times_filtered = [time_to_minutes(team['Temps']) for team in filtered_data]
+    # Convertir selected_value en entier si ce n'est pas déjà le cas
+    selected_value = int(selected_value)
 
-    # Créer et retourner le nouveau graphique
+    # Filtrer les données basées sur la valeur sélectionnée en secondes
+    filtered_data = [team for team in data if time_to_seconds(team['Temps']) <= selected_value]
+
+    # Trier les données filtrées par temps en ordre croissant
+    sorted_filtered_data = sorted(filtered_data, key=lambda team: time_to_seconds(team['Temps']))
+
+    # Préparer les données pour le graphique
+    equipes_filtered = [team['Equipe'] for team in sorted_filtered_data]
+    times_filtered = [time_to_seconds(team['Temps']) for team in sorted_filtered_data]
+
+    # Créer et retourner le nouveau graphique trié
     fig = px.bar(x=equipes_filtered, y=times_filtered, labels={'x': 'Équipes', 'y': 'Temps Total (en secondes)'},
-                 title=f'Équipes avec le Temps Total Égal ou Inférieur à {selected_value} secondes dans l\'Épreuve Finale')
+                 title=f'Équipes avec le Temps Total Égal ou Inférieur à {selected_value} secondes')
     return fig
+
+# Update Slider Time --------------------------------
 
 @app.callback(
     Output('slider-value-time', 'children'),
@@ -196,13 +164,39 @@ def update_time_graph(selected_value):
 def update_slider_value_output(selected_value):
     return f'Valeur du slider : {selected_value}'
 
+# Update Search bar ---------------------------------
 
+@app.callback(
+    Output('search-dropdown', 'options'),
+    [Input('search-dropdown', 'search_value')]
+)
+def update_search_options(search_value):
+    if search_value:
+        # Filtrer les équipes qui contiennent la chaîne recherchée
+        search_results = [team['Equipe'] for team in data if search_value.lower() in team['Equipe'].lower()]
+        # Créer des options pour le Dropdown
+        return [{'label': team, 'value': team} for team in search_results]
+    return []
+
+# Callback pour afficher les informations de l'équipe sélectionnée
+@app.callback(
+    Output('search-output', 'children'),
+    [Input('search-dropdown', 'value')]
+)
+def display_selected_team_info(selected_team):
+    if selected_team:
+        # Filtrer les données pour l'équipe sélectionnée
+        team_info = next((team for team in data if team['Equipe'] == selected_team), None)
+        if team_info:
+            # Ici, vous pouvez formater les informations de l'équipe comme vous le souhaitez
+            return html.Div([
+                html.H3(selected_team),
+                # Afficher d'autres informations de team_info ici
+            ])
+    return 'Veuillez sélectionner une équipe.'
 
 
 # Lance l'application  ---------------------------------------------------
 def create_dashboard():
     return app
 
-# Pour tester localement
-# if __name__ == '__main__':
-#     app.run_server(debug=True)
