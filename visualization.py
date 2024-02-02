@@ -7,8 +7,6 @@ import plotly.express as px
 with open('data.json', 'r') as file:
     data = json.load(file)
 
-
-
 # Graph Gain ---------------------------------------------------
 equipes = [team['Equipe'] for team in data]
 gains = [int(team['Gain'].replace(" ", "")) for team in data]
@@ -59,20 +57,25 @@ def time_to_minutes(time_list):
     return time_list[0] * 60 + time_list[1]
 
 # Extraction des noms des équipes et de leur temps respectif
-teams = [team['Equipe'] for team in data]
+# teams = [team['Equipe'] for team in data]
 times = [time_to_minutes(team['Temps']) for team in data]
 
 # Tri des données par temps en ordre décroissant
-teams_sorted, times_sorted = zip(*sorted(zip(teams, times), key=lambda x: x[1], reverse=True))
+equipe_time_sorted, times_sorted = zip(*sorted(zip(equipes, times), key=lambda x: x[1]))
 
 # Création d'un graphique en barres avec Plotly
-fig_time = px.bar(x=teams_sorted, y=times_sorted, labels={'x': 'Équipes', 'y': 'Temps Total (seconde)'},
+fig_time = px.bar(x=equipe_time_sorted, y=times_sorted, labels={'x': 'Équipes', 'y': 'Temps Total (seconde)'},
                   title="Temps Total (en seconde) par Équipe dans l'épreuve final")
+
+# Affectation équipes ------------------------------------------------
+
+membres = [member['Membres'] for member in data]
+
 
 
 # Application Dash ---------------------------------------------------
 
-app = dash.Dash(__name__, external_stylesheets=['https://codepen.io/chriddyp/pen/bWLwgP.css'])
+app = dash.Dash(__name__, external_stylesheets=['https://codepen.io/chriddyp/pen/bWLwgP.css'],suppress_callback_exceptions=True)
 
 couleur_principale = 'black'
 couleur_secondaire = '#404040'
@@ -107,35 +110,92 @@ def render_content(tab):
         return html.Div([
             html.H3('Quelle équipe à gagner le plus?'),
             dcc.Graph(id='graph-gains', figure=fig_gains),
-            html.P("Fort Boyard calcule les gains d'une équipe avec 'L'épreuve final' dans lequelle une pluie de pièce d'or tombe dans une cage. Chaques membres doit récupérer à la main les pièces qui augmente le gain final obtenue. ", style={'padding': '20px'})
+            dcc.Dropdown(
+                id='dropdown-gains',
+                options=[
+                    {'label': 'Top 5', 'value': 5},
+                    {'label': 'Top 10', 'value': 10},
+                    {'label': 'Toutes les équipes', 'value': len(data)},
+                ],
+                value=10,
+                style={'color': 'black'},),
+            html.P("Le gain final d'une équipe dans Fort Boyard est déterminé lors de l'épreuve finale, où les participants recueillent des pièces d'or dans une cage. Cette visualisation met en évidence les équipes qui ont excellé dans cette épreuve, capturant ainsi les plus grandes richesses. Les données révèlent non seulement les montants accumulés mais aussi la performance exceptionnelle de certaines équipes sous pression.", style={'padding': '20px'})
         ], style=Content_Style )
     elif tab == 'tab-2':
         return html.Div([
             html.H3('Comparaison de réussites/échec de chaques équipes'),
             # Contenu pour Graph 2
             dcc.Graph(id='graph-reussites-echecs', figure=fig_reussites_echecs),
-            html.P('Analyse en texte ici...', style={'padding': '20px'}),
+            html.P("Cette section offre une comparaison approfondie entre les succès et les revers rencontrés par chaque équipe. En examinant le nombre d'épreuves réussies contre les échecs, nous pouvons identifier les stratégies qui ont conduit à la victoire ou à la défaite. Cette analyse fournit un aperçu précieux des dynamiques d'équipe et de l'importance de la préparation et de l'adaptabilité.", style={'padding': '20px'}),
         ],style=Content_Style )
     elif tab == 'tab-3':
         return html.Div([
             html.H3("Quelle équipe à eu le plus de réussites?"),
             # Contenu pour Graph 3
             dcc.Graph(id='graph-moy-réusite', figure=fig_avg_successes),
-            html.P("En observant les données extraites sur le site, on remarque que l'équipe ayant réussit le plus d'épreuves est l'équipe ARSEP, ce qui n'est pas étonnant étant donnée qu'il y a des membres expérimentés à Fort Boyard comme Vianney avec 3 participations aux jeux, Laura BOULLEAU avec aussi 3 participations et Maeva COUCKE avec 5 participations!", style={'padding': '20px'}),
+            html.P("L'analyse des performances globales révèle que l'équipe ARSEP se distingue par le nombre le plus élevé d'épreuves réussies. Avec des membres expérimentés tels que Vianney, Laura Boulleau, et Maeva Coucke, qui ont participé à plusieurs reprises au jeu, cette équipe illustre l'impact de l'expérience et de la cohésion d'équipe sur le succès.", style={'padding': '20px'}),
         ],style=Content_Style )
     elif tab == 'tab-4':
         return html.Div([
             html.H3("Quelle équipe a eu le plus de temps dans l'épreuve final?"),
             # Contenu pour Graph 2
             dcc.Graph(id='graph-time', figure=fig_time),
-            html.P("L'épreuve final de Fort Boyard est une épreuve limité en temps, ce temps accordé aux équipes différe en fonction du nombre de bonnes réponses fournie lors de l'épreuve du conseil.", style={'padding': '20px'}),
+            html.Div(id='slider-value-time'),
+            dcc.Slider(
+                id='slider-time',
+                min=0,  
+                max=225,  
+                step=1,  
+                value=0,
+                marks={i: str(i) for i in range(0, 226, 10)}
+            ),
+            html.P("L'épreuve finale de Fort Boyard est un défi contre la montre, où le temps alloué varie en fonction des performances antérieures de l'équipe. Cette section explore comment le temps accordé lors de cette épreuve finale influence le gain final et souligne l'importance de maximiser chaque seconde pour augmenter les chances de victoire.", style={'padding': '20px'}),
         ],style=Content_Style )
     elif tab == 'tab-start':
         return html.Div([
             html.H3("Introduction "),
-            html.Img(src='https://fs-prod-cdn.nintendo-europe.com/media/images/10_share_images/games_15/nintendo_switch_4/H2x1_NSwitch_FortBoyard_image1600w.jpg', style={'max-width': '25%', 'height': 'auto'}),
-            html.P("Ce projet va analyser des données extraites du site Fort Boyard sur les équipes ayant participé pendant 2019 à 2023. ", style={'padding': '20px'}),
+            html.Img(src='https://fs-prod-cdn.nintendo-europe.com/media/images/10_share_images/games_15/nintendo_switch_4/H2x1_NSwitch_FortBoyard_image1600w.jpg', style={'max-width': '75%', 'height': 'auto'}),
+            html.P("Ce projet propose une analyse détaillée des performances des équipes ayant participé à Fort Boyard entre 2019 et 2023. En exploitant des données issues directement du jeu, nous explorerons différents aspects des défis rencontrés par les participants, mettant en lumière les stratégies gagnantes, les taux de réussite et d'échec, ainsi que l'efficacité des équipes dans la gestion du temps lors de l'épreuve finale.", style={'padding': '20px'}),
         ],style=Content_Style )
+
+@app.callback(
+    Output('graph-gains', 'figure'),
+    [Input('dropdown-gains', 'value')]
+)
+def update_gains_graph(selected_value):
+    # Filtrer les données basées sur la valeur sélectionnée
+    sorted_data = sorted(data, key=lambda x: int(x['Gain'].replace(" ", "")), reverse=True)[:selected_value]
+    equipes_filtered = [team['Equipe'] for team in sorted_data]
+    gains_filtered = [int(team['Gain'].replace(" ", "")) for team in sorted_data]
+
+    # Créer et retourner le nouveau graphique
+    fig = px.bar(x=equipes_filtered, y=gains_filtered, labels={'x': 'Équipes', 'y': 'Gains'},
+                 title=f'Top {selected_value} des Gains par Équipe')
+    return fig
+
+@app.callback(
+    Output('graph-time', 'figure'),
+    [Input('slider-time', 'value')]
+)
+def update_time_graph(selected_value):
+    # Filtrer et trier les données basées sur la valeur sélectionnée du slider
+    filtered_data = sorted([team for team in data if time_to_minutes(team['Temps']) <= selected_value],
+                           key=lambda x: time_to_minutes(x['Temps']))
+    equipes_filtered = [team['Equipe'] for team in filtered_data]
+    times_filtered = [time_to_minutes(team['Temps']) for team in filtered_data]
+
+    # Créer et retourner le nouveau graphique
+    fig = px.bar(x=equipes_filtered, y=times_filtered, labels={'x': 'Équipes', 'y': 'Temps Total (en secondes)'},
+                 title=f'Équipes avec le Temps Total Égal ou Inférieur à {selected_value} secondes dans l\'Épreuve Finale')
+    return fig
+
+@app.callback(
+    Output('slider-value-time', 'children'),
+    [Input('slider-time', 'value')]
+)
+def update_slider_value_output(selected_value):
+    return f'Valeur du slider : {selected_value}'
+
 
 
 

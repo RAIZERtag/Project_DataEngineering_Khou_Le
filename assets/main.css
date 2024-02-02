@@ -3,3 +3,8 @@ body {
     margin: 0;
     font-family: DejaVu Sans Mono, monospace;
     }
+
+.select-dropdown-content {
+    color: black;
+    background-color: white;
+}
