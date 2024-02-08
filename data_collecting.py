@@ -16,6 +16,9 @@ class MySpider(scrapy.Spider):
     def __init__(self):
         self.start_urls = ["https://o.fortboyard.tv/gains.php"]
         self.option = webdriver.ChromeOptions()
+        self.option.add_argument('--no-sandbox')
+        self.option.add_argument('--headless')
+        self.option.add_argument('--disable-dev-shm-usage')
         self.driver = webdriver.Chrome(options= self.option)
 
     def start_requests(self):
