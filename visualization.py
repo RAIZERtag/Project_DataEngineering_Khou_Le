@@ -67,7 +67,7 @@ def render_content(tab):
             html.H3("Quelle équipe à eu le plus de réussites?"),
             # Contenu pour Graph 3
             dcc.Graph(id='graph-moy-réusite', figure=fig_avg_successes),
-            html.P("L'analyse des performances globales révèle que l'équipe ARSEP se distingue par le nombre le plus élevé d'épreuves réussies. Avec des membres expérimentés tels que Vianney, Laura Boulleau, et Maeva Coucke, qui ont participé à plusieurs reprises au jeu, cette équipe illustre l'impact de l'expérience et de la cohésion d'équipe sur le succès.", style={'padding': '20px'}),
+            html.P("L'analyse des performances globales révèle que les équipes ayant le plus de victoire ont souvent des membres qui sont déja .", style={'padding': '20px'}),
         ],style=Content_Style)
     elif tab == 'tab-4':
         return html.Div([
@@ -101,7 +101,24 @@ def render_content(tab):
                 options=[],
                 style={'color': 'black'},
             ),
-            html.Div(id='search-output')
+            dash_table.DataTable(
+                id='team-info-table',
+                columns=[
+                    {'name': 'Membres', 'id': 'Membres'},
+                    {'name': 'Quête des clés', 'id': 'Quete des cles'},
+                    {'name': 'Salle du jugement', 'id': 'Salle du jugement'},
+                    {'name': 'Quête des indices', 'id': 'Quete des indices'},
+                    {'name': 'Salle du conseil', 'id': 'Salle du conseil'},
+                    {'name': 'Réussites', 'id': 'Réussites'},
+                    {'name': 'Échecs', 'id': 'Échecs'},
+                    {'name': 'Gain', 'id': 'Gain'},
+                    {'name': 'Temps', 'id': 'Temps'}
+                ],
+                data=[],
+                style_cell={'textAlign': 'left', 'backgroundColor': 'black', 'color': 'white'},
+                style_data={'whiteSpace': 'normal', 'height': 'auto'},
+            ),
+            html.Img(id='team-image', src='')
         ],style=Content_Style )
     else:
         return html.Div('Sélectionnez une sous-catégorie')
@@ -196,7 +213,59 @@ def display_selected_team_info(selected_team):
     return 'Veuillez sélectionner une équipe.'
 
 
+
+# Update Search Table --------------------------------------
+@app.callback(
+    Output('team-info-table', 'data'),
+    [Input('search-dropdown', 'value')]
+)
+def update_table(selected_team):
+    if not selected_team:
+        return []
+
+    for team in data:
+        if team['Equipe'] == selected_team:
+            # Calculer le nombre total de réussites et d'échecs
+            total_reussites = team['Reussites'].count("Reussite")
+            total_echecs = team['Reussites'].count("Echec")
+            
+            # Formatage des épreuves pour chaque catégorie
+            epreuves_dict = team['Epreuves_part'][0]
+            epreuves_formatted = {key: ", ".join(val) for key, val in epreuves_dict.items()}
+            
+            # Formatage des membres de l'équipe
+            membres_str = ", ".join(team['Membres'])
+            
+            # Formatage du gain et du temps
+            gain_str = team['Gain']
+            temps_str = f"{team['Temps'][0]} min {team['Temps'][1]} s"
+
+            team_data = [{
+                'Membres': membres_str,
+                'Quete des cles': epreuves_formatted.get('Quete des cles', ''),
+                'Salle du jugement': epreuves_formatted.get('Salle du jugement', ''),
+                'Quete des indices': epreuves_formatted.get('Quete des indices', ''),
+                'Salle du conseil': epreuves_formatted.get('Salle du conseil', ''),
+                'Réussites': total_reussites,
+                'Échecs': total_echecs,
+                'Gain': gain_str,
+                'Temps': temps_str
+            }]
+            return team_data
+
+    return []
+
+@app.callback(
+    Output('team-image', 'src'),
+    [Input('search-dropdown', 'value')]
+)
+def update_image_src(selected_team):
+    if selected_team:
+        # Utiliser uniquement le nom du fichier si le dossier 'assets' est utilisé
+        image_filename = f'{selected_team}.jpg'
+        return app.get_asset_url(image_filename)
+    return None  # Retourne None si aucune équipe n'est sélectionnée
+
 # Lance l'application  ---------------------------------------------------
 def create_dashboard():
     return app
-
