@@ -1,14 +1,4 @@
-Dans ce fichier nous avons tous les packages à installer dans le terminal. Pour rentrer dans le terminal vous effectuez :
-
-1) Appuyer les touches Win+X pour ouvrir le menu déroulant
-2) Cliquer sur Window PowerShell
-
-Si vous n'avez pas téléchargé avant PipEnv :
-  python -m pip install pipenv
-
-Puis installait les librairies suivantes avec les lignes suivantes :
-  Scrappy : python -m pipenv install scrapy
-  Dash : python -m pipenv install dash 
-  Bootstrap : python -m pipenv install dash-bootstrap-components 
-  Plotly : python -m pipenv install plotly
-  Panda : python -m pipenv install panda
+dash
+pandas
+plotly
+dash-bootstrap-components
