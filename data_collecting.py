@@ -69,7 +69,7 @@ class MySpider(scrapy.Spider):
             img_data =requests.get(image_urls).content
 
             # Enregistrer l'image dans le dossier spécifié
-            with open(os.path.join(save_folder, f'{equipe_name}.jpg'), 'wb') as img_file:
+            with open(os.path.join(save_folder, f'{str(unidecode.unidecode(equipe_name))}.jpg'), 'wb') as img_file:
                 img_file.write(img_data)
 
         url_datasheet_group = response.meta['url']
