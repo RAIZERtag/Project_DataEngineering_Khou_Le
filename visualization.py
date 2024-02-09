@@ -7,7 +7,7 @@ from values import data, fig_gains,fig_reussites_echecs,fig_avg_successes,fig_ti
 
 # --------------------------------Application Dash ---------------------------------------------------
 
-app = dash.Dash(__name__, external_stylesheets=['https://codepen.io/chriddyp/pen/bWLwgP.css'],suppress_callback_exceptions=True)
+app = dash.Dash(__name__, external_stylesheets=['https://codepen.io/chriddyp/pen/bWLwgP.css'])
 
 couleur_principale = 'black'
 couleur_secondaire = '#404040'
@@ -253,4 +253,3 @@ def update_image_src(selected_team):
 # Lance l'application  ---------------------------------------------------
 def create_dashboard():
     return app
-

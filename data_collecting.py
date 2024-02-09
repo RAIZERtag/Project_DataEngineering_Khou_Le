@@ -16,6 +16,9 @@ class MySpider(scrapy.Spider):
     def __init__(self):
         self.start_urls = ["https://o.fortboyard.tv/gains.php"]
         self.option = webdriver.ChromeOptions()
+        self.option.add_argument('--no-sandbox')
+        self.option.add_argument('--headless')
+        self.option.add_argument('--disable-dev-shm-usage')
         self.driver = webdriver.Chrome(options= self.option)
 
     def start_requests(self):
@@ -69,7 +72,7 @@ class MySpider(scrapy.Spider):
             img_data =requests.get(image_urls).content
 
             # Enregistrer l'image dans le dossier spécifié
-            with open(os.path.join(save_folder, f'{equipe_name}.jpg'), 'wb') as img_file:
+            with open(os.path.join(save_folder, f'{str(unidecode.unidecode(equipe_name))}.jpg'), 'wb') as img_file:
                 img_file.write(img_data)
 
         url_datasheet_group = response.meta['url']
