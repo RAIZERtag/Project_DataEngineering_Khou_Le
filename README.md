@@ -74,7 +74,7 @@ Ensuite il faut attendre que le container dash_app soit actif. Quand c'est le ca
 
 * __visualization.py__ : interface permettant d'implémenter le framework de l'application via des fonctions implémentant les graphiques, les boutons, les sliders, l'affichage des images et leurs interactions.
 
-* __main.py__ : permet de démarrer le dashboard en appelant la variable *app* implémentées dans [color=#80aaff]**visualization.py**[/color] contenant toute l'architecture du dashboard.
+* __main.py__ : permet de démarrer le dashboard en appelant la variable *app* implémentées dans **visualization.py** contenant toute l'architecture du dashboard.
 
 ### Dockerfiles
 
