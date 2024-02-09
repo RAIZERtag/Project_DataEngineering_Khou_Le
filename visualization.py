@@ -19,7 +19,7 @@ Main_Style = {'height': '100%','backgroundColor':couleur_principale,'width': '90
 
 # Définition du layout de l'application
 app.layout = html.Div([
-    # Barre de navigation à gauche avec des onglets pour sélectionner les graphiques
+    # Barre de navigation
     html.Div([
         dcc.Tabs(id="tabs", value='tab-start', children=[
             dcc.Tab(label="Introduction", value='tab-start', style=Tab_Style),
@@ -31,7 +31,6 @@ app.layout = html.Div([
         ], vertical=True, style={'height': '100vh'}),
     ], style={'width': '10%', 'float': 'left', 'backgroundColor':couleur_principale}),
 
-    # Contenu principal qui change en fonction de l'onglet sélectionné
     html.H3('Projet KHOU_LE : Analyse des équipes de Fort Boyard', style= Main_Style),
     html.Div(id='tabs-content', style=Main_Style),
 ])
@@ -58,21 +57,18 @@ def render_content(tab):
     elif tab == 'tab-2':
         return html.Div([
             html.H3('Comparaison de réussites/échec de chaques équipes'),
-            # Contenu pour Graph 2
             dcc.Graph(id='graph-reussites-echecs', figure=fig_reussites_echecs),
             html.P("Cette section offre une comparaison approfondie entre les succès et les revers rencontrés par chaque équipe. En examinant le nombre d'épreuves réussies contre les échecs, nous pouvons identifier les stratégies qui ont conduit à la victoire ou à la défaite. Cette analyse fournit un aperçu précieux des dynamiques d'équipe et de l'importance de la préparation et de l'adaptabilité.", style={'padding': '20px'}),
         ],style=Content_Style )
     elif tab == 'tab-3':
         return html.Div([
             html.H3("Quelle équipe à eu le plus de réussites?"),
-            # Contenu pour Graph 3
             dcc.Graph(id='graph-moy-réusite', figure=fig_avg_successes),
             html.P("L'analyse des performances globales révèle que les équipes ayant le plus de victoire ont souvent des membres qui sont déja .", style={'padding': '20px'}),
         ],style=Content_Style)
     elif tab == 'tab-4':
         return html.Div([
             html.H3("Quelle équipe a eu le plus de temps dans l'épreuve final?"),
-            # Contenu pour Graph 2
             dcc.Graph(id='graph-time', figure=fig_time),
             html.Div(id='slider-value-time'),
             dcc.Slider(
@@ -118,7 +114,7 @@ def render_content(tab):
                 style_cell={'textAlign': 'left', 'backgroundColor': 'black', 'color': 'white'},
                 style_data={'whiteSpace': 'normal', 'height': 'auto'},
             ),
-            html.Img(id='team-image', src='')
+            html.Img(id='team-image', src='',style={'height': '100%','backgroundColor':couleur_secondaire,'color': couleur_texte,'margin': '0','padding': '0','textAlign': 'center'})
         ],style=Content_Style )
     else:
         return html.Div('Sélectionnez une sous-catégorie')
@@ -137,12 +133,12 @@ def render_content(tab):
     [Input('dropdown-gains', 'value')]
 )
 def update_gains_graph(selected_value):
-    # Filtrer les données basées sur la valeur sélectionnée
+    # Filtre données
     sorted_data = sorted(data, key=lambda x: int(x['Gain'].replace(" ", "")), reverse=True)[:selected_value]
     equipes_filtered = [team['Equipe'] for team in sorted_data]
     gains_filtered = [int(team['Gain'].replace(" ", "")) for team in sorted_data]
 
-    # Créer et retourner le nouveau graphique
+    # Graph
     fig = px.bar(x=equipes_filtered, y=gains_filtered, labels={'x': 'Équipes', 'y': 'Gains'},
                  title=f'Top {selected_value} des Gains par Équipe')
     return fig
@@ -154,20 +150,17 @@ def update_gains_graph(selected_value):
     [Input('slider-time', 'value')]
 )
 def update_time_graph(selected_value):
-    # Convertir selected_value en entier si ce n'est pas déjà le cas
     selected_value = int(selected_value)
 
-    # Filtrer les données basées sur la valeur sélectionnée en secondes
+    # Filtrer en sec
     filtered_data = [team for team in data if time_to_seconds(team['Temps']) <= selected_value]
 
-    # Trier les données filtrées par temps en ordre croissant
+    # Ordre croissant
     sorted_filtered_data = sorted(filtered_data, key=lambda team: time_to_seconds(team['Temps']))
-
-    # Préparer les données pour le graphique
     equipes_filtered = [team['Equipe'] for team in sorted_filtered_data]
     times_filtered = [time_to_seconds(team['Temps']) for team in sorted_filtered_data]
 
-    # Créer et retourner le nouveau graphique trié
+    # Graph
     fig = px.bar(x=equipes_filtered, y=times_filtered, labels={'x': 'Équipes', 'y': 'Temps Total (en secondes)'},
                  title=f'Équipes avec le Temps Total Égal ou Inférieur à {selected_value} secondes')
     return fig
@@ -189,26 +182,23 @@ def update_slider_value_output(selected_value):
 )
 def update_search_options(search_value):
     if search_value:
-        # Filtrer les équipes qui contiennent la chaîne recherchée
         search_results = [team['Equipe'] for team in data if search_value.lower() in team['Equipe'].lower()]
-        # Créer des options pour le Dropdown
+        # Option Dropdown
         return [{'label': team, 'value': team} for team in search_results]
     return []
 
-# Callback pour afficher les informations de l'équipe sélectionnée
+# Update search --------------------------------
 @app.callback(
     Output('search-output', 'children'),
     [Input('search-dropdown', 'value')]
 )
 def display_selected_team_info(selected_team):
     if selected_team:
-        # Filtrer les données pour l'équipe sélectionnée
+        # Filtre
         team_info = next((team for team in data if team['Equipe'] == selected_team), None)
         if team_info:
-            # Ici, vous pouvez formater les informations de l'équipe comme vous le souhaitez
             return html.Div([
                 html.H3(selected_team),
-                # Afficher d'autres informations de team_info ici
             ])
     return 'Veuillez sélectionner une équipe.'
 
@@ -225,18 +215,13 @@ def update_table(selected_team):
 
     for team in data:
         if team['Equipe'] == selected_team:
-            # Calculer le nombre total de réussites et d'échecs
             total_reussites = team['Reussites'].count("Reussite")
             total_echecs = team['Reussites'].count("Echec")
             
-            # Formatage des épreuves pour chaque catégorie
+            # Catégorie
             epreuves_dict = team['Epreuves_part'][0]
             epreuves_formatted = {key: ", ".join(val) for key, val in epreuves_dict.items()}
-            
-            # Formatage des membres de l'équipe
             membres_str = ", ".join(team['Membres'])
-            
-            # Formatage du gain et du temps
             gain_str = team['Gain']
             temps_str = f"{team['Temps'][0]} min {team['Temps'][1]} s"
 
@@ -261,10 +246,9 @@ def update_table(selected_team):
 )
 def update_image_src(selected_team):
     if selected_team:
-        # Utiliser uniquement le nom du fichier si le dossier 'assets' est utilisé
-        image_filename = f'{selected_team}.jpg'
-        return app.get_asset_url(image_filename)
-    return None  # Retourne None si aucune équipe n'est sélectionnée
+        image_filename = f'assets/images/{selected_team}.jpg'
+        return image_filename
+    return None
 
 # Lance l'application  ---------------------------------------------------
 def create_dashboard():

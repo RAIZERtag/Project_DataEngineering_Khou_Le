@@ -15,11 +15,11 @@ gains = [int(team['Gain'].replace(" ", "")) for team in data]
 equipes_gains_sorted, gains_sorted = zip(*sorted(zip(equipes, gains), key=lambda x: x[1]))
 fig_gains = px.bar(x=equipes_gains_sorted, y=gains_sorted, labels={'x': 'Équipes', 'y': 'Gains'}, title='Histogramme des Gains par Équipe')
 
-# Calcul des réussites et échecs (ajustement nécessaire ici)
+# Calcul des réussites et échecs 
 reussites = []
 echecs = []
 for team in data:
-    if 'Reussites' in team:  # Vérifie si la clé 'Reussites' existe
+    if 'Reussites' in team: 
         toutes_reussites = team['Reussites'].count("Reussite")
         tous_echecs = team['Reussites'].count("Echec")
     else:
@@ -66,10 +66,9 @@ def time_to_seconds(time_value):
         # Gérer autrement les cas non prévus
         return 0
 
-# Application de la nouvelle fonction pour chaque élément de données
 times = [time_to_seconds(team['Temps']) for team in data]
 
-# Tri des données par temps en ordre décroissant
+# Tri ordre décroissant
 equipe_time_sorted, times_sorted = zip(*sorted(zip(equipes, times), key=lambda x: x[1]))
 
 # Création Histogramme
