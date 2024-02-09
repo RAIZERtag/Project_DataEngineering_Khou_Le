@@ -1,4 +1,4 @@
-# DataEngineering Projet étude des performances à Fort Boyard
+# DataEngineering Projet étude des performances des équipes ayant participé à Fort Boyard de 2003 à 2023
 ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
 ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
 ![Scrapy](https://img.shields.io/badge/Scrapy-%2314D08C.svg?style=for-the-badge&logo=scrapy&logoColor=white)
@@ -9,7 +9,7 @@
 ## Description
 L'objectif de ce projet est d'étudier les performances des équipes participant à la mythique émission TV Fort Boyard. 
 
-Pour cela nous récupérons les informations par WebScraping avec la librairie Scrapy sur le site [https://o.fortboyard.tv/gains.php#parsaison](https://o.fortboyard.tv/gains.php#parsaison), et nous les compilons dans un fichier json.  
+Pour cela nous récupérons les informations par WebScraping avec les librairies Selenium et Scrapy sur le site [https://o.fortboyard.tv/gains.php#parsaison](https://o.fortboyard.tv/gains.php#parsaison), et nous les compilons dans un fichier json.  
 
 Ensuite ce fichier json est importé dans une base MongoDB pour avoir un meilleur contrôle sur l'accès des données.
 
@@ -19,9 +19,11 @@ Chaque étape du projet est isolée dans un container Docker.
 
 Le projet est managé grâce à un docker-compose.yml.
 
+Dans la branche principale de github nous trouvons le docker-compose permettant de lancer et de gérer l'ensemble projet, ainsi que les fichiers Dockerfile de chaque container.
+
 Le dossier __programmes__ contient :
 
-* Les programmes non conteneurisés
+* Les programmes non conteneurisés (détaillés plus bas dans la rubrique **Programmes python**)
 
 * Les fichiers contenant les librairies nécessaires (Pipfile et requirements.txt) au fonctionnement des programmes.
 
