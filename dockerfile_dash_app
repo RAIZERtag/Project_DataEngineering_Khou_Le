@@ -1,0 +1,12 @@
+FROM python:3.8
+
+WORKDIR /app
+
+EXPOSE 8050
+
+COPY requirements.txt requirements.txt
+RUN pip install -r requirements.txt
+
+COPY data_cleaning.py data_filtering.py main.py visualization.py .
+
+CMD ["python", "main.py"]
