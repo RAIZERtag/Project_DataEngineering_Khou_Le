@@ -28,7 +28,7 @@ services:
       - selenium-chrome
     volumes:
       - data_from_scrap:/tmp
-    command: bash -c 'mongoimport --host localhost --drop --collection my_collection /tmp/data.json'
+    command: mongod --bind_ip_all --port 27017
 
   dash_app:
     build:
