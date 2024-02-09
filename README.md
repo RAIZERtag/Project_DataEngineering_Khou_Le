@@ -68,7 +68,7 @@ Ensuite il faut attendre que le container dash_app soit actif. Quand c'est le ca
 
 ### Programmes python
 
-* __data_collecting.py__ : scrape les données depuis le site [https://o.fortboyard.tv/gains.php#parsaison](https://o.fortboyard.tv/gains.php#parsaison) et génère un fichier json contenant toutes les informations récupérées. De plus, les photos de groupe de chaque équipe sont aussi récupérées et sauvegarder dans un dossier __images__. Chaque image a un titre de la forme nom_equipe (annee_de_participation).jpg
+* __data_collecting.py__ : scrape les données depuis le site [https://o.fortboyard.tv/gains.php#parsaison](https://o.fortboyard.tv/gains.php#parsaison) et génère un fichier json contenant toutes les informations récupérées. De plus, les photos de groupe de chaque équipe sont aussi récupérées et sauvegarder dans un dossier __images__. Chaque image a un titre de la forme **nom_equipe (annee_de_participation).jpg**.
 
 * __values.py__ : récupère l'ensemble des données depuis le container dont l'image est une base de données mongodb. Ce fichier de code contient également les fonctions essentiels pour faire un premier traitement des données comme la fonction *time_to_seconds()* ou pour déclarer des histogrammes avec la variable *fig_time*.
 
