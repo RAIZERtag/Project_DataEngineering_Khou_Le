@@ -80,7 +80,7 @@ Ensuite il faut attendre que le container dash_app soit actif. Quand c'est le ca
 
 ### docker-compose
 
-Le docker-compose créé 3 services : 
+Le fichier docker-compose.yml créé 3 services : 
 
 - **selenium-chrome** : il permet de lancer le container permettant de scraper les données sur le site d'étude. Il s'appuie sur une image *selenium-chrome* qui, par défaut utilise le port 4444.
 
