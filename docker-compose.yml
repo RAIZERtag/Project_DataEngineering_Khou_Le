@@ -5,7 +5,7 @@ services:
     image: selenium/standalone-chrome:latest
     build:
       context: .
-      dockerfile: dockerfile_scraper_selenium
+      dockerfile: Scrapy/dockerfile_scraper_selenium
     volumes:
       - data_from_scrap:/data_from_scrap
     ports:
@@ -14,7 +14,7 @@ services:
   
   mongodb:
     image: mongo
-    container_name: mongo_container
+    container_name: DATABASE/mongo_container
     ports:
       - "27017:27017"
     environment:
@@ -28,7 +28,7 @@ services:
   dash_app:
     build:
       context: .
-      dockerfile: dockerfile_dash_app
+      dockerfile: API/dockerfile_dash_app
     container_name: dash_app_container
     ports:
       - "8050:8050"
