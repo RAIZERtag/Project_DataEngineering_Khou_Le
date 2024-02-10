@@ -114,8 +114,6 @@ Le fichier docker-compose.yml créé 3 services :
 
 - **dash_app** : il permet d'afficher à l'écran le dashboard. Etant donné qu'il utilise un framework dash, le dashboard est accessible via le port 8050.
 
-## Diagramme de classe 
-
 ## Contributeurs
 
 Ce projet a été développé par Van-Minh Christophe LE (étudiant 4e année filière DSIA) et Ryan KHOU (étudiant 4e année filière DSIA) dans le cadre de l'unité Data Engineering dispensé à l'ESIEE PARIS.
