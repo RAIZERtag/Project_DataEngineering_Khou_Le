@@ -19,13 +19,27 @@ Chaque étape du projet est isolée dans un container Docker.
 
 Le projet est managé grâce à un docker-compose.yml.
 
-Dans la branche principale de github nous trouvons le docker-compose permettant de lancer et de gérer l'ensemble projet, ainsi que les fichiers Dockerfile de chaque container.
+Dans la branche principale de github nous trouvons le docker-compose permettant de lancer et de gérer l'ensemble projet en déployant les fichiers Dockerfile de chaque container.
 
-Le dossier __programmes__ contient :
+Chaque container est associé à un dossier dans ce dépôt github :
 
-* Les programmes non conteneurisés (détaillés plus bas dans la rubrique **Programmes python**)
+Le dossier API contient :
 
-* Les fichiers contenant les librairies nécessaires (Pipfile et requirements.txt) au fonctionnement des programmes.
+* Les programmes permettant de lancer le dashboard via main.py et de monter l'architecture du dashboard avec values.py et visualization.py (plus d'informations dans la rubrique **Programmes python**)
+
+* Le fichier requirement.txt contenant les librairies nécessaires  au fonctionnement des programmes.
+
+Le dossier DATABASE contient :
+
+* le fichier qui est généré par scraping et qui sera inséré dans une base de données mongoDB (l'opération est automatisée avec docker-compose)
+
+Le dossier Scrapy contient :
+
+* Le programme permettant de scraper le site internet
+
+* Son fichier de dépendance 
+
+* Le dockerfile permettant de préparer l'environnement nécessaire au fonctionnement du programme.
 
 ## Pré-requis
 Ce projet nécessite l'utilisation de Docker. S'il n'est pas déjà téléchargé :
